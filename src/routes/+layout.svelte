@@ -4,6 +4,10 @@
 	let { children } = $props();
 </script>
 
+<svelte:head>
+	<title>Rubik's Cube</title>
+</svelte:head>
+
 <div class="container">
 	<nav>
 		<a href="/olls">OLLs</a>
