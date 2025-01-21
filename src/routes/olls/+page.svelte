@@ -2,24 +2,38 @@
 	import videoSrc from './video.mp4';
 	import list from './list.json';
 
-	list.sort((a, b) => a.id - b.id);
+	const url = new URL(location.href);
 
-	let currentIndex = $state(0);
+	let currentIndex = $state(Number(url.searchParams.get('i') ?? '0'));
 	let currentTime = $state(0);
 	let paused = $state(true);
 	let playbackRate = $state(1);
+	let mode = $state(url.searchParams.get('m') === 'slow' ? 'slow' : 'fast');
 
 	const current = $derived(list[currentIndex]);
 
 	$effect(() => {
+		url.searchParams.set('i', currentIndex.toString());
+		url.searchParams.set('m', mode);
+
+		window.history.replaceState(null, '', url);
+	});
+
+	$effect(() => {
 		if (current) {
+			currentTime = mode === 'slow' ? current.slow[0] : (current.fast ?? current.slow)[0];
+		}
+	});
+
+	$effect(() => {
+		if (current && mode === 'slow' && currentTime > current.slow[1]) {
 			currentTime = current.slow[0];
 		}
 	});
 
 	$effect(() => {
-		if (current && currentTime > current.slow[1]) {
-			currentTime = current.slow[0];
+		if (current && mode === 'fast' && current.fast && currentTime > current.fast[1]) {
+			currentTime = current.fast[0];
 		}
 	});
 </script>
@@ -29,7 +43,7 @@
 		if (current) {
 			switch (e.key) {
 				case 'r': {
-					currentTime = current.slow[0];
+					currentTime = mode === 'slow' ? current.slow[0] : (current.fast ?? current.slow)[0];
 					break;
 				}
 
@@ -71,6 +85,11 @@
 				case 'c': {
 					navigator.clipboard.writeText(currentTime.toString());
 					console.log(currentTime, 'copied');
+					break;
+				}
+
+				case 'f': {
+					mode = mode === 'slow' ? 'fast' : 'slow';
 					break;
 				}
 
