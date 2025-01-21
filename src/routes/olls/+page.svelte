@@ -7,7 +7,7 @@
 	let currentIndex = $state(0);
 	let currentTime = $state(0);
 	let paused = $state(true);
-	let playbackRate = $state(2);
+	let playbackRate = $state(1);
 
 	const current = $derived(list[currentIndex]);
 
