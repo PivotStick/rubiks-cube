@@ -2,6 +2,7 @@
 	import { generateScramble } from '$lib/generateScramble';
 
 	let scramble = $state(generateScramble());
+	let disableScramble = $state(false);
 
 	let timer = $state(0);
 
@@ -38,7 +39,9 @@
 	function stop() {
 		if (raf !== undefined) cancelAnimationFrame(raf);
 		raf = undefined;
-		scramble = generateScramble();
+		if (!disableScramble) {
+			scramble = generateScramble();
+		}
 		mode = 'idle';
 	}
 </script>
@@ -74,12 +77,23 @@
 	}}
 />
 
-<main>
-	<div class="scramble">
-		{#each scramble as n}
-			<span>{n}</span>
-		{/each}
-	</div>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<main
+	onclick={() => {
+		if (mode === 'idle') {
+			disableScramble = !disableScramble;
+		}
+	}}
+>
+	{#if !disableScramble}
+		<div class="scramble">
+			{#each scramble as n}
+				<span>{n}</span>
+			{/each}
+		</div>
+	{/if}
 	<div class="timer {mode}">
 		{s}<span class="ms">.{ms}</span>
 	</div>
