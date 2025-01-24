@@ -92,13 +92,19 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		height: 100%;
+		height: 80%;
+		gap: 4rem;
 
 		.scramble {
 			display: flex;
 			gap: 1rem;
+
+			justify-content: center;
+			flex-wrap: wrap;
 			font-size: 2rem;
 			font-weight: 600;
+
+			width: calc(3rem * 10);
 
 			span {
 				border-bottom: 1px solid #aaa;
@@ -106,9 +112,6 @@
 		}
 
 		.timer {
-			margin-top: auto;
-			margin-bottom: auto;
-
 			font-size: 9rem;
 			font-weight: 600;
 			font-family: monospace;
