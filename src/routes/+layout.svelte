@@ -8,7 +8,6 @@
 	const links = [
 		{
 			href: '/',
-			text: '',
 			icon: 'house'
 		},
 		{
@@ -18,6 +17,10 @@
 		{
 			href: '/plls',
 			text: 'PLLs'
+		},
+		{
+			href: '/timer',
+			icon: 'clock'
 		}
 	];
 </script>
