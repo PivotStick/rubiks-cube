@@ -12,7 +12,18 @@
 	 */
 	let raf;
 
+	/**
+	 * @type {"idle" | "pressing" | "ready" | "playing"}
+	 */
+	let mode = $state('idle');
+
+	/**
+	 * @type {ReturnType<typeof setTimeout>}
+	 */
+	let timeout;
+
 	function start() {
+		mode = 'playing';
 		timer = 0;
 		const from = Date.now();
 
@@ -28,19 +39,37 @@
 		if (raf !== undefined) cancelAnimationFrame(raf);
 		raf = undefined;
 		scramble = generateScramble();
+		mode = 'idle';
 	}
 </script>
 
 <svelte:window
 	on:keydown={(e) => {
-		if (e.repeat) return;
+		if (e.repeat || e.key !== ' ') return;
 
-		if (e.key === ' ') {
-			if (raf === undefined) {
-				start();
-			} else {
+		switch (mode) {
+			case 'idle':
+				mode = 'pressing';
+				timeout = setTimeout(() => (mode = 'ready'), 500);
+				break;
+
+			case 'playing':
 				stop();
-			}
+				break;
+		}
+	}}
+	on:keyup={(e) => {
+		if (e.repeat || e.key !== ' ') return;
+
+		switch (mode) {
+			case 'pressing':
+				mode = 'idle';
+				clearTimeout(timeout);
+				break;
+
+			case 'ready':
+				start();
+				break;
 		}
 	}}
 />
@@ -51,7 +80,7 @@
 			<span>{n}</span>
 		{/each}
 	</div>
-	<div class="timer">
+	<div class="timer {mode}">
 		{s}<span class="ms">.{ms}</span>
 	</div>
 </main>
@@ -63,8 +92,7 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-
-		gap: 6rem;
+		height: 100%;
 
 		.scramble {
 			display: flex;
@@ -78,6 +106,9 @@
 		}
 
 		.timer {
+			margin-top: auto;
+			margin-bottom: auto;
+
 			font-size: 9rem;
 			font-weight: 600;
 			font-family: monospace;
@@ -85,6 +116,14 @@
 			.ms {
 				font-size: 0.35em;
 				font-weight: 700;
+			}
+
+			&.pressing {
+				color: red;
+			}
+
+			&.ready {
+				color: green;
 			}
 		}
 	}
