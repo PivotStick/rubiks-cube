@@ -15,3 +15,19 @@
 
 	box-sizing: border-box;
 }
+
+button {
+	cursor: pointer;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+
+	padding: 0.25rem 0.5rem;
+	border: none;
+
+	background-color: rgb(var(--color-100));
+	color: rgb(var(--on-color-100));
+	border-radius: 0.5rem;
+}

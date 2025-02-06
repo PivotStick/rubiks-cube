@@ -1,12 +1,24 @@
 <script>
 	import { generateScramble } from '$lib/generateScramble';
 
-	let scramble = $state(generateScramble());
+	const key = '___rubiks_cube___';
+
+	const session = JSON.parse(localStorage.getItem(key) ?? `{}`);
+
+	let scramble = $state(session.scramble ?? generateScramble());
 	let disableScramble = $state(false);
 
-	let timer = $state(0);
+	let timer = $state(session.timer ?? 0);
 
 	const [s, ms] = $derived(timer.toFixed(3).split('.'));
+
+	/**
+	 * @type {{
+	 *  time: number;
+	 *  scramble: string[];
+	 * }[]}
+	 */
+	const history = $state(session.history ?? []);
 
 	/**
 	 * @type {number | undefined}
@@ -40,14 +52,43 @@
 		if (raf !== undefined) cancelAnimationFrame(raf);
 		raf = undefined;
 		if (!disableScramble) {
+			history.push({
+				time: timer,
+				scramble
+			});
 			scramble = generateScramble();
 		}
 		mode = 'idle';
 	}
+
+	$effect(() => {
+		localStorage.setItem(
+			key,
+			JSON.stringify({
+				timer,
+				scramble,
+				history
+			})
+		);
+	});
+
+	const ao5 = $derived.by(() => {
+		if (history.length < 5) return null;
+
+		const total = history.slice(-5).reduce((a, c) => a + c.time, 0);
+
+		return total / 5;
+	});
 </script>
 
 <svelte:window
 	on:keydown={(e) => {
+		if (e.key === 'h') {
+			if (mode === 'idle') {
+				disableScramble = !disableScramble;
+			}
+		}
+
 		if (e.repeat || e.key !== ' ') return;
 
 		switch (mode) {
@@ -80,13 +121,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<main
-	onclick={() => {
-		if (mode === 'idle') {
-			disableScramble = !disableScramble;
-		}
-	}}
->
+<main>
 	{#if !disableScramble}
 		<div class="scramble">
 			{#each scramble as n}
@@ -99,6 +134,26 @@
 	</div>
 </main>
 
+<div class="session">
+	<button
+		onclick={() => {
+			history.length = 0;
+			scramble = generateScramble();
+			timer = 0;
+		}}
+	>
+		supprimer session
+		<iconify-icon icon="fa6-solid:xmark"></iconify-icon>
+	</button>
+	<div class="table">
+		<p>actuel</p>
+		<p>{(history.at(-1)?.time ?? timer).toFixed(3)}s</p>
+
+		<p>ao5</p>
+		<p>{!ao5 ? `${history.length} / 5` : `${ao5.toFixed(3)}s`}</p>
+	</div>
+</div>
+
 <style lang="scss">
 	main {
 		padding: 4rem;
@@ -110,17 +165,15 @@
 		gap: 4rem;
 
 		.scramble {
-			display: flex;
-			gap: 1rem;
+			display: grid;
+			gap: 1rem 1.5rem;
+			grid-template-columns: repeat(10, 1fr);
 
-			justify-content: center;
-			flex-wrap: wrap;
 			font-size: 2rem;
 			font-weight: 600;
 
-			width: calc(3rem * 10);
-
 			span {
+				text-align: center;
 				border-bottom: 1px solid #aaa;
 			}
 		}
@@ -142,6 +195,24 @@
 			&.ready {
 				color: green;
 			}
+		}
+	}
+
+	.session {
+		position: fixed;
+		bottom: 2rem;
+		left: 2rem;
+
+		background-color: white;
+		padding: 1rem;
+		border-radius: 0.75rem;
+		box-shadow: 0 1rem 2rem -0.75rem rgba(0 0 0 / 50%);
+
+		.table {
+			margin-top: 1rem;
+			display: grid;
+			gap: 0.5rem 1.5rem;
+			grid-template-columns: auto 1fr;
 		}
 	}
 </style>
