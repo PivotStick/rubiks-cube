@@ -84,9 +84,11 @@
 
 <svelte:window
 	on:keydown={(e) => {
-		if (e.key === 'h') {
-			if (mode === 'idle') {
+		if (mode === 'idle') {
+			if (e.key === 'h') {
 				disableScramble = !disableScramble;
+			} else if (e.key === 'r') {
+				scramble = generateScramble();
 			}
 		}
 
@@ -129,6 +131,9 @@
 				<span>{n}</span>
 			{/each}
 		</div>
+		<div class="viewer">
+			<ScrambleViewer {scramble} />
+		</div>
 	{/if}
 	<div class="timer {mode}">
 		{s}<span class="ms">.{ms}</span>
@@ -155,10 +160,6 @@
 			<p>ao5</p>
 			<p>{!ao5 ? `${history.length} / 5` : `${ao5.toFixed(3)}s`}</p>
 		</div>
-	</div>
-
-	<div class="scramble">
-		<ScrambleViewer {scramble} />
 	</div>
 </div>
 
