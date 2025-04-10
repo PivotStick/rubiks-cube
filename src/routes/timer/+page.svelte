@@ -1,4 +1,5 @@
 <script>
+	import ScrambleViewer from '$lib/components/ScrambleViewer.svelte';
 	import { generateScramble } from '$lib/generateScramble';
 
 	const key = '___rubiks_cube___';
@@ -135,22 +136,29 @@
 </main>
 
 <div class="session">
-	<button
-		onclick={() => {
-			history.length = 0;
-			scramble = generateScramble();
-			timer = 0;
-		}}
-	>
-		supprimer session
-		<iconify-icon icon="fa6-solid:xmark"></iconify-icon>
-	</button>
-	<div class="table">
-		<p>actuel</p>
-		<p>{(history.at(-1)?.time ?? timer).toFixed(3)}s</p>
+	<div class="infos">
+		<button
+			onclick={() => {
+				history.length = 0;
+				scramble = generateScramble();
+				timer = 0;
+			}}
+		>
+			supprimer session
+			<iconify-icon icon="fa6-solid:xmark"></iconify-icon>
+		</button>
 
-		<p>ao5</p>
-		<p>{!ao5 ? `${history.length} / 5` : `${ao5.toFixed(3)}s`}</p>
+		<div class="table">
+			<p>actuel</p>
+			<p>{(history.at(-1)?.time ?? timer).toFixed(3)}s</p>
+
+			<p>ao5</p>
+			<p>{!ao5 ? `${history.length} / 5` : `${ao5.toFixed(3)}s`}</p>
+		</div>
+	</div>
+
+	<div class="scramble">
+		<ScrambleViewer {scramble} />
 	</div>
 </div>
 
@@ -207,6 +215,10 @@
 		padding: 1rem;
 		border-radius: 0.75rem;
 		box-shadow: 0 1rem 2rem -0.75rem rgba(0 0 0 / 50%);
+
+		display: flex;
+		align-items: center;
+		gap: 2rem;
 
 		.table {
 			margin-top: 1rem;
